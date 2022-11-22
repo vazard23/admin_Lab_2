@@ -1,0 +1,38 @@
+#!/bin/bash
+while getopts i:o: flag
+do
+	case "${flag}" in
+		i) inputDir=${OPTARG};;
+		o) outputDir=${OPTARG};;
+	esac
+done
+
+if [ -z "$inputDir" ] || [ -z "$outputDir" ]
+then
+	echo "Error 1."
+	exit 1
+fi
+
+outputFilename="$outputDir/$(basename "$inputDir")-$(date +"%Y-%m-%d_%H:%M:%S").zip"
+
+echo "Backing up $inputDir to $outputFilename"
+
+if [ ! -d "$inputDir" ] || [ ! -d "$outputDir" ]
+then
+	echo "Error 2"
+	exit 1
+fi
+
+if [[ "$inputDir" == *".."* ]]
+then
+	echo "Error 3."
+	exit 1
+fi
+
+if ! command -v zip &> /dev/null
+then
+	echo "Error 4"
+	sudo apt install zip unzip
+fi
+
+zip -r "$outputFilename" "$inputDir"
